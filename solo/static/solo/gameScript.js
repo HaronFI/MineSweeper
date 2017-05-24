@@ -1,173 +1,105 @@
-//static content
-const logoImage = (<img src="static/solo/logo.svg"></img>);
 
+const logoImage = (<img src="static/solo/Logo.svg"/>);
+const undoButton = (<button className="menuStyle" onClick = {Undo}>UNDO</button>);
 
-//inline styles
-const frameStyle = {
-	align: 'center',
-};
+var mapSizeX;
+var mapSizeY; 
 
-const mapStyle = {
-	borderSpacing: '0px',
-	backgroundColor: 'white',
-	border: '2px solid white',
-};
+var mapArray;
 
-const mapButtonStyle = {
-	backgroundColor: 'dodgerBlue',
-	width: '41',
-	height: '41',
-	color: 'white',
-};
-
-const mapPieceStyle = {
-	backgroundColor: 'lightgrey',
-	width: '42',
-	height: '42',
-	fontSize: '32px',
-	textAlign: 'center',
-	border: 'none',	
-};
-
-const mapPieceStyle1 = {
-	backgroundColor: 'lightgrey',
-	width: '42',
-	height: '42',
-	fontSize: '32px',
-	textAlign: 'center',
-	border: 'none',
-	fontWeight: 'bold',
-	color: 'blue',	
-};
-
-const mapPieceStyle2 = {
-	backgroundColor: 'lightgrey',
-	width: '42',
-	height: '42',
-	fontSize: '32px',
-	textAlign: 'center',
-	border: 'none',
-	fontWeight: 'bold',
-	color: 'green',	
-};
-
-const mapPieceStyle3 = {
-	backgroundColor: 'lightgrey',
-	width: '42',
-	height: '42',
-	fontSize: '32px',
-	textAlign: 'center',
-	border: 'none',
-	fontWeight: 'bold',
-	color: 'red',	
-};
-
-const mapPieceStyle4 = {
-	backgroundColor: 'lightgrey',
-	width: '42',
-	height: '42',
-	fontSize: '32px',
-	textAlign: 'center',
-	border: 'none',
-	fontWeight: 'bold',
-	color: 'darkblue',	
-};
-
-
-//elements
-const pieceEmpty = (<button style={mapPieceStyle} disabled></button>);
-const pieceMine = (<button style={mapPieceStyle} disabled>&#10040;</button>); 
-const piece1 = (<button style={mapPieceStyle1} disabled>1</button>);
-const piece2 = (<button style={mapPieceStyle2} disabled>2</button>);
-const piece3 = (<button style={mapPieceStyle3} disabled>3</button>);
-const piece4 = (<button style={mapPieceStyle4} disabled>4</button>);
-
-
-//global varibles
-
-
-/*state Key
-0 - init
-1 - game start
-*/
-var state = 0
-/*mapArray Key
-0 - empty 
-1
-2
-3
-4
-5 - mine
-6 - flag
-*/
-var mapArray = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-/*mapButtonArray Key
-0 - off
-1 - on
-2 - disable
-*/
-var mapButtonArray = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-
-//process functions
-function InitFunction(){
+var inited = 0;
 	
-	for(var cnt = 0; cnt < 16; cnt++){
-		for(var cnt2 = 0; cnt2 < 16; cnt2++){
-			mapButtonArray[cnt][cnt2] = 1;
-		}
-	}
 	
-	state = 1;
-}
-
-
-function RemoveButton(x, y){
-	mapButtonArray[x][y] = 0;
-}
-
-
-//components
-function MapComponent() {
+function SetupGame(){
 	
-	var cols = [];
-	var rows = [];
-	
-	for(var cnt = 0; cnt < 16; cnt++){
-		for(var cnt2 = 0; cnt2 < 16; cnt2++){
-			if(mapButtonArray[cnt][cnt2] == 1){
-				cols[cnt2] = (<td><button style={mapButtonStyle} onclick="RemoveButton({cnt},{cnt2})"></button></td>);
-			}
-			else if(mapButtonArray[cnt][cnt2] == 0){
-				
-			}
-		}
+	$.ajax({
+		url: "/setupGame",
+		context: document.body	
+	}).done(function(data) {
+		mapSizeX = data[0]
+		mapSizeY = data[1]
 		
-		rows[cnt] = (<tr>{cols[0]}{cols[1]}{cols[2]}{cols[3]}{cols[4]}{cols[5]}{cols[6]}{cols[7]}{cols[8]}{cols[9]}{cols[10]}{cols[11]}{cols[12]}{cols[13]}{cols[14]}{cols[15]}</tr>);
-	}
+	})
 	
-return 	<table style={mapStyle}>{rows}</table>;
+	inited = 1;
+}
+
+function LeftClick(x, y){
+	$.ajax({
+		url: "/leftClick?x="+x+"&y="+y,
+		type: 'get'
+	})
+	
+}
+
+function RightClick(x, y){
+	$.ajax({
+		url: "/rightClick?x="+x+"&y="+y,
+		type: 'get'
+	})
+	
+}
+
+function Undo(){
+		$.ajax({
+		url: "/undo"
+	})
+}
+
+function RenderMap(){
+	
+	$.ajax({
+		url: "/updateMap",
+		context: document.body	
+	}).done(function(data) {
+		console.log(data)
+		mapArray = data
+		
+	})
+	
+	if (!mapArray || !mapArray[0]) {
+			return <div>Loading</div>;
+		}
+		var output = [];
+	
+		for(var cnt1 = 0; cnt1 < mapSizeY; cnt1++){
+			output.push([]);
+			for(var cnt2 = 0; cnt2 < mapSizeX; cnt2++){
+				let outX = cnt2, outY = cnt1;
+				if(mapArray[cnt1][cnt2] == null){
+					output[cnt1].push(<td><button className="tileButton" onClick = {() => LeftClick(outX,outY)} onContextMenu = {() => RightClick(outX,outY)}>0</button></td>);
+				}else if(mapArray[cnt1][cnt2] == -1)
+					output[cnt1].push(<td><button className="tileButtonFlag" onContextMenu = {() => RightClick(outX,outY)}> F </button></td>);
+				else if(mapArray[cnt1][cnt2] == 0)
+					output[cnt1].push(<td><button className="tileButton0" disabled> {mapArray[cnt1][cnt2]} </button></td>);
+				else if(mapArray[cnt1][cnt2] == 9)
+					output[cnt1].push(<td><button className="tileButtonMine" disabled> M </button></td>);
+				else
+					output[cnt1].push(<td><button className={"tileButton"+ mapArray[cnt1][cnt2]} disabled> {mapArray[cnt1][cnt2]} </button></td>);
+			}
+			output[cnt1] = <tr className="mapGrid">{output[cnt1]}</tr>;
+		}
+	
+	return <tables>{output}</tables>
 }
 
 
 function main(){
 	
-	if(state == 0){
-		InitFunction();
-	}
-
+	if(!inited)
+		SetupGame();
+	
 	ReactDOM.render(
-		<div style={frameStyle}>
-		{logoImage}
-		<br/>
-		<MapComponent/>
+		<div>
+		<RenderMap />
+		<br />
+		{undoButton}
 		</div>,
 		document.getElementById('root')
 	);
 }
 
-setInterval(main, 1000);
-
-
+setInterval(main,100);
 
 
 

@@ -2,15 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MINESWEEPER</title>
-	<script src="https://unpkg.com/react@latest/dist/react.js"></script>
-    <script src="https://unpkg.com/react-dom@latest/dist/react-dom.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-
-</head>
-<body style="background-color:dodgerBlue">
-	<div id="root"></div>
-	<script src="static/solo/gameScript.js" type="text/babel"/>
+    <title>SET UP GAME</title>
+	<link rel="stylesheet" href="static/solo/styles.css"/>
 	
+</head>
+<body style="background-color:dodgerBlue;">
+	
+	<form action="startGame" method="post">{% csrf_token %}
+		SET UP GRID
+		<br />
+		<table>
+			<tr>
+				<td>X</td>
+				<td><input id="gridSizeX" type="number" min="4" max="16" step="4" name="gridSizeX" value="16"></input></td>
+			</tr>
+			<tr>
+				<td>Y</td>
+				<td><input id="gridSizeY" type="number" min="4" max="16" step="4" name="gridSizeY" value="16"></input>	</td>
+			</tr>
+			
+			<tr>
+				<td><input type="submit" value="Start Game"/></td>
+			</tr>
+			
+		</table>
+	</form>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

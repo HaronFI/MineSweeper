@@ -1,5 +1,224 @@
-.but{
-	
-	font-size: 40px;
-	
+.mapGrid{
+	border: 0px;
+	cursor: crosshair;
 }
+
+.tileButton{
+	width: 42px;
+	height: 42px;
+	background-color: dodgerBlue;	
+	border: 4px outset white;
+	color: dodgerblue;
+	font-weight: bold;
+	font-size: 24px;
+}
+
+.tileButton:hover{
+	border: 4px dashed white;
+	content: "jk";
+	cursor: crosshair;
+}
+
+.tileButton:active{	
+	background-color: ghostWhite
+	border: 4px inset white;
+}
+
+.tileButton:disabled{
+	background-color: ghostWhite;
+	border: 4px inset white;
+}
+
+.tileButton0:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: ghostWhite;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButton1:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: blue;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+
+.tileButton2:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: green;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButton3:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: red;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButton4:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: darkBlue;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButton5:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: darkRed;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButton6:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: turquoise;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+
+.tileButton7:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: black;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButton8:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: grey;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButtonMine:disabled{
+	width: 42px;
+	height: 42px;
+	background-color: ghostWhite;
+	border: 4px inset white;
+	color: dodgerBlue;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButtonFlag{
+	width: 42px;
+	height: 42px;
+	background-color: dodgerBlue;	
+	border: 4px outset white;
+	color: ghostWhite;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.tileButtonFlag:hover{
+	width: 42px;
+	height: 42px;
+	background-color: dodgerBlue;	
+	border: 4px outset white;
+	color: ghostWhite;
+	font-weight: bold;
+	font-size: 24px;
+	cursor: crosshair;
+}
+
+.menuStyle{
+	font-size: 32px;
+	background-color: dodgerBlue;
+	border: 4px outset white;
+	color: white;
+	font-weight: bold;
+}
+
+form{
+	font-weight: bold;
+	font-family: "Arial Black", Gadget, sans-serif;
+}
+
+input{
+	background-color: white;
+	padding: 4px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
