@@ -6,7 +6,7 @@
 .tileButton{
 	width: 42px;
 	height: 42px;
-	background-color: dodgerBlue;	
+	background-color: transparent;	
 	border: 4px outset white;
 	color: dodgerblue;
 	font-weight: bold;
@@ -169,7 +169,10 @@
 	border: 4px outset white;
 	color: white;
 	font-weight: bold;
+	width: 350px;
 }
+
+
 
 form{
 	font-weight: bold;

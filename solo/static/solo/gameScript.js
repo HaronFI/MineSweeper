@@ -1,105 +1,153 @@
 
-const logoImage = (<img src="static/solo/Logo.svg"/>);
-const undoButton = (<button className="menuStyle" onClick = {Undo}>UNDO</button>);
+class RenderMapC extends React.Component {
 
-var mapSizeX;
-var mapSizeY; 
-
-var mapArray;
-
-var inited = 0;
 	
-	
-function SetupGame(){
-	
-	$.ajax({
-		url: "/setupGame",
-		context: document.body	
-	}).done(function(data) {
-		mapSizeX = data[0]
-		mapSizeY = data[1]
+	constructor(props){
+		super(props);
+		this.state = {
+			mapArray: null,
+			mapSizeY: 16,
+			mapSizeX: 16,
+			gameState: 0,
+		};
 		
-	})
+		this.UpdateMap = this.UpdateMap.bind(this);
+		this.LeftClick = this.LeftClick.bind(this);
+		this.RightClick = this.RightClick.bind(this);
+		this.Undo = this.Undo.bind(this);
+		this.getGameState = this.getGameState.bind(this);
+		this.resetGame = this.resetGame.bind(this);
+	}
 	
-	inited = 1;
-}
-
-function LeftClick(x, y){
-	$.ajax({
-		url: "/leftClick?x="+x+"&y="+y,
-		type: 'get'
-	})
-	
-}
-
-function RightClick(x, y){
-	$.ajax({
-		url: "/rightClick?x="+x+"&y="+y,
-		type: 'get'
-	})
-	
-}
-
-function Undo(){
+	componentDidMount(){
+		self = this;
+		
 		$.ajax({
-		url: "/undo"
-	})
-}
-
-function RenderMap(){
-	
-	$.ajax({
-		url: "/updateMap",
-		context: document.body	
-	}).done(function(data) {
-		console.log(data)
-		mapArray = data
+			url: "/setupGame",
+			context: document.body	
+		}).done(function(data) {
+			console.log(data)
+			self.setState({mapSizeX : data[0]})
+			self.setState({mapSizeY : data[1]})
+			
+			self.UpdateMap()
+			
+		});
 		
-	})
+		setInterval(self.UpdateMap, 1000);
+	}
+
 	
-	if (!mapArray || !mapArray[0]) {
-			return <div>Loading</div>;
-		}
-		var output = [];
 	
-		for(var cnt1 = 0; cnt1 < mapSizeY; cnt1++){
+	
+	UpdateMap(){
+		$.ajax({
+			url: "/updateMap",
+			context: document.body	
+		}).done(function(data) {
+			console.log(data)
+			self.setState({mapArray: data})
+			self.getGameState()
+		})
+		
+	}
+	
+	
+	
+	LeftClick(x, y){
+		$.ajax({
+			url: "/leftClick?x="+x+"&y="+y,
+			type: 'get'
+		}).done(function(data) {
+				console.log(data)
+				self.setState({mapArray: data})
+				self.getGameState()
+			})
+		
+	}
+
+	RightClick(x, y){
+		$.ajax({
+			url: "/rightClick?x="+x+"&y="+y,
+			type: 'get'
+		}).done(function(data) {
+				console.log(data)
+				self.setState({mapArray: data})
+				self.getGameState()
+			})
+		
+	}
+
+	Undo(){
+		$.ajax({
+			url: "/undo"
+		}).done(function(data) {
+				console.log(data)
+				self.setState({mapArray: data})
+				self.getGameState()
+			})
+	}
+	
+	getGameState(){
+		$.ajax({
+			url: "/getGameState"
+		}).done(function(data) {
+				console.log(data)
+				self.setState({gameState: data})
+			})
+	}
+	
+	resetGame(){
+		window.location.href = "/";
+	}
+	
+	render(){
+	
+	
+	const undoButton = (<button className="menuStyle" onClick = {this.Undo}>UNDO</button>);
+	const resetButton = (<button className="menuStyle" onClick = {this.resetGame}>RESET</button>);
+		
+	if (!this.state.mapArray || !this.state.mapArray[0]) {
+		return <div>Loading</div>;
+	}
+	var output;
+	
+	if(self.state.gameState == 0){
+		output = []
+		for(var cnt1 = 0; cnt1 < this.state.mapSizeY; cnt1++){
 			output.push([]);
-			for(var cnt2 = 0; cnt2 < mapSizeX; cnt2++){
+			for(var cnt2 = 0; cnt2 < this.state.mapSizeX; cnt2++){
 				let outX = cnt2, outY = cnt1;
-				if(mapArray[cnt1][cnt2] == null){
-					output[cnt1].push(<td><button className="tileButton" onClick = {() => LeftClick(outX,outY)} onContextMenu = {() => RightClick(outX,outY)}>0</button></td>);
-				}else if(mapArray[cnt1][cnt2] == -1)
-					output[cnt1].push(<td><button className="tileButtonFlag" onContextMenu = {() => RightClick(outX,outY)}> F </button></td>);
-				else if(mapArray[cnt1][cnt2] == 0)
-					output[cnt1].push(<td><button className="tileButton0" disabled> {mapArray[cnt1][cnt2]} </button></td>);
-				else if(mapArray[cnt1][cnt2] == 9)
-					output[cnt1].push(<td><button className="tileButtonMine" disabled> M </button></td>);
+				if(this.state.mapArray[cnt1][cnt2] == null){
+					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButton" onClick = {() => this.LeftClick(outX,outY)} onContextMenu = {(event) => {event.preventDefault(); this.RightClick(outX,outY)}}>0</button></td>);
+				}else if(this.state.mapArray[cnt1][cnt2] == -1)
+					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButtonFlag" onContextMenu = {(event) => {event.preventDefault(); this.RightClick(outX,outY)}}> F </button></td>);
+				else if(this.state.mapArray[cnt1][cnt2] == 0)
+					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButton0" disabled> {this.state.mapArray[cnt1][cnt2]} </button></td>);
+				else if(this.state.mapArray[cnt1][cnt2] == 9)
+					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButtonMine" disabled> M </button></td>);
 				else
-					output[cnt1].push(<td><button className={"tileButton"+ mapArray[cnt1][cnt2]} disabled> {mapArray[cnt1][cnt2]} </button></td>);
+					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className={"tileButton"+ this.state.mapArray[cnt1][cnt2]} disabled> {this.state.mapArray[cnt1][cnt2]} </button></td>);
 			}
-			output[cnt1] = <tr className="mapGrid">{output[cnt1]}</tr>;
+			output[cnt1] = <tr key = {cnt1} className="mapGrid">{output[cnt1]}</tr>;
 		}
+	}else if(self.state.gameState == 2){
+		output = <div><br /><img src="/static/solo/Lose.svg"/></div>
+	}else if(self.state.gameState == 3){
+		output = <div><br /><img src="/static/solo/Win.svg"/></div>
+	}
+		return <div>{resetButton}{undoButton}<br /><tables>{output}</tables></div>
+	}
 	
-	return <tables>{output}</tables>
 }
 
 
-function main(){
-	
-	if(!inited)
-		SetupGame();
-	
-	ReactDOM.render(
-		<div>
-		<RenderMap />
-		<br />
-		{undoButton}
-		</div>,
-		document.getElementById('root')
-	);
-}
-
-setInterval(main,100);
+ReactDOM.render(
+	<div>
+	<RenderMapC />
+	</div>,
+	document.getElementById('root')
+);
 
 
 
