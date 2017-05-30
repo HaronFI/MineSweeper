@@ -172,11 +172,16 @@
 	width: 350px;
 }
 
-
+.centerDiv{
+	margin:auto; 
+	width: 700px; 
+	padding-top:3%;
+}
 
 form{
 	font-weight: bold;
 	font-family: "Arial Black", Gadget, sans-serif;
+	
 }
 
 input{

@@ -8,18 +8,15 @@ import json
 
 newGame = False
 
-lastMove = [None, None, None]
-
 mapSizeX = 16
 mapSizeY = 16
 
 mapArray = None
 underArray = None
+mapList = None
 
 mines = None
 flags = None
-
-currentGame = None
 
 
 gameState =0
@@ -29,13 +26,11 @@ gameState =0
 
 
 def index(request):
-
 	return render(request, 'solo/index.html')
 
 def loadGame(request):
 	
-	if currentGame == None:
-		return redirect('index')
+
 				
 	return render(request, 'solo/game.html')
 	
@@ -49,147 +44,110 @@ def startGame(request):
 	global flags
 	global gameState
 	global currentGame
-	
-	global newGame
-	newGame = True
+	global mapList
 	
 	mines = None
 	flags = []
 	gameState = 0
+	mapList = []
 	
 	if request.method == "POST" : 
 		mapSizeX = int(request.POST["gridSizeX"])
 		mapSizeY = int(request.POST["gridSizeY"])
 		
-		
 	mapArray = []
+	underArray = []
 	
 	for cnt1 in range(mapSizeY):
 		mapArray.append([])
-		for cnt2 in range(mapSizeX):
-			mapArray[cnt1].append(None)
-	
-	
-	underArray = []
-			
-	for cnt1 in range(mapSizeY):
 		underArray.append([])
 		for cnt2 in range(mapSizeX):
+			mapArray[cnt1].append(None)
 			underArray[cnt1].append(0)
 	
 	
-	currentGame = Game(	
-		MapSizeX = mapSizeX,
-		MapSizeY = mapSizeY,
-		MapArray = json.dumps(mapArray),
-		UnderArray = json.dumps(underArray),
-		GameState = gameState,
-		Mines = json.dumps(mines),
-		Flags = json.dumps(flags))
-	currentGame.save()
 
 	return redirect('/loadGame/')
-
 	
-def setupGame(request):
-	
-	
-	
+def getSize(request):
 	return JsonResponse([mapSizeX,mapSizeY], safe=False)
 
-def updateMap(request):
-
-
-
+def getMap(request):
 	return JsonResponse(mapArray, safe=False)
 	
-	
 def getGameState(request):
-
 	return JsonResponse(gameState, safe=False)
+	
+def getScore(request):
 
+	score = 10
+
+	return JsonResponse(score, safe=False)
+	
+def getLeaderBoard(request):
+
+	board = None
+	
+	return JsonResponse(board, safe=False)
 
 def leftClick(request):
 
 	global mapArray
+	global mapList
 	global gameState
 	
 	if(request.method == "GET"):
 		x = int(request.GET["x"])
 		y = int(request.GET["y"])
 		
+		updateMapList()
+		
 		if mines == None:
 			createMines(y, x)
+		
 		
 		if underArray[y][x] == 9:
 			gameState = 2
 			mapArray[y][x] = underArray[y][x]
 		else:
 			clearTiles(y, x)
-	
-		lastMove[0] = 1
-		lastMove[1] = y
-		lastMove[2] = x
-		updateDataBase()
-	
+			winCheck()
+
 	return JsonResponse(mapArray, safe=False)
 
-
 def rightClick(request):
-
 	global flags
+	global mapList
+	
 	if(mines != None):
 		if(request.method == "GET"):
 			x = int(request.GET["x"])
 			y = int(request.GET["y"])
+			
+			updateMapList()
 
 			if(mapArray[y][x] == None):
 				mapArray[y][x] = -1
 				flags.append([y, x])
-				compareFlags()
 			else:
 				mapArray[y][x] = None
 				for f in flags:
 					if f[0] == y and f[1] == x:
 						f[0] = -100
 						f[1] = -100
-			
-			
-			lastMove[0] = 2
-			lastMove[1] = y
-			lastMove[2] = x
-	
+
 	return JsonResponse(mapArray, safe=False)
 
-	
 def undo(request):
 
-	global gameState;
+	global mapArray
+	global gameState
 	
-	#1- leftClick
-	#2- rightClick
-
-	if(lastMove[0] == 1):
-		undoClearTiles(lastMove[1],lastMove[2])
-	
-	if(lastMove[0] == 2):
-		if(mapArray[lastMove[1]][lastMove[2]] == None):
-			mapArray[lastMove[1]][lastMove[2]] = -1
-		else:
-			mapArray[lastMove[1]][lastMove[2]] = None
-			for f in flags:
-				if f[0] == lastMove[1] and f[1] == lastMove[2]:
-					f[0] = -100
-					f[1] = -100
-
-	lastMove[0] = None
-	lastMove[1] = None
-	lastMove[2] = None
-	
-	gameState = 0
+	if len(mapList) != 0 :
+		mapArray = mapList.pop()
+		gameState = 0 
 	
 	return JsonResponse(mapArray, safe=False)
-
 	
 def createMines(y, x):
 	global mines
@@ -219,7 +177,6 @@ def createMines(y, x):
 	
 	pass
 	
-	
 def clearTiles(y, x):
 	
 	if underArray[y][x] != 9:
@@ -233,26 +190,6 @@ def clearTiles(y, x):
 						clearTiles(cnt1+y,cnt2+x)
 
 	pass
-	
-	
-def undoClearTiles(y, x):
-
-	global mapArray
-	
-	if mapArray[y][x] != None:
-		mapArray[y][x] = None
-		print("L1")
-		if mapArray[y][x] == 0:
-			print("L2")
-			for cnt1 in range(-1,2):
-				print("L3")
-				for cnt2 in range(-1,2):
-					print("L4")
-					if cnt1+y in range(mapSizeY) and cnt2+x in range(mapSizeX):
-						clearTiles(cnt1+y,cnt2+x)
-	
-	pass
-	
 	
 def compareFlags():
 	
@@ -271,18 +208,34 @@ def compareFlags():
 	
 	
 	pass
-	
-	
-def updateDataBase():
 
-	currentGame.MapArray = json.dumps(mapArray)
-	currentGame.GameState = gameState
-	currentGame.Mines = json.dumps(mines)
-	currentGame.Flags = json.dumps(flags)
-	currentGame.save()
+def winCheck():
+
+	global gameState
+
+	win = 3
 	
+	for cnt1 in range(mapSizeY):
+		for cnt2 in range(mapSizeX):
+			if underArray[cnt1][cnt2] != 9 and mapArray[cnt1][cnt2] == None:
+				win = 0
+
+	gameState = win		
+			
 	pass
+	
+def updateMapList():
 
+	global mapList
+
+	mapList.append([])
+	
+	for cnt1 in range(mapSizeY):
+		mapList[len(mapList) - 1].append([])
+		for cnt2 in range(mapSizeX):
+			mapList[len(mapList) - 1][cnt1].append(mapArray[cnt1][cnt2])
+			
+	pass
 
 
 

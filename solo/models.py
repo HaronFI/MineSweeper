@@ -11,3 +11,11 @@ class Game(models.Model):
 	GameState = models.IntegerField()
 	Mines = models.TextField()
 	Flags = models.TextField()
+	MapList = models.TextField()
+	
+class LeaderBoard(models.Model):
+	
+	_DATABASE = "Default"
+	
+	Name = models.TextField()
+	Score = models.IntegerField()

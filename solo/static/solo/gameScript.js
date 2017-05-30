@@ -1,5 +1,7 @@
 
-class RenderMapC extends React.Component {
+
+//Render Map class
+class RenderMap extends React.Component {
 
 	
 	constructor(props){
@@ -9,6 +11,7 @@ class RenderMapC extends React.Component {
 			mapSizeY: 16,
 			mapSizeX: 16,
 			gameState: 0,
+			gameID: 1,
 		};
 		
 		this.UpdateMap = this.UpdateMap.bind(this);
@@ -23,7 +26,7 @@ class RenderMapC extends React.Component {
 		self = this;
 		
 		$.ajax({
-			url: "/setupGame",
+			url: "/getSize",
 			context: document.body	
 		}).done(function(data) {
 			console.log(data)
@@ -34,15 +37,14 @@ class RenderMapC extends React.Component {
 			
 		});
 		
-		setInterval(self.UpdateMap, 1000);
+		//setInterval(self.UpdateMap, 1000);
 	}
 
 	
-	
-	
+
 	UpdateMap(){
 		$.ajax({
-			url: "/updateMap",
+			url: "/getMap",
 			context: document.body	
 		}).done(function(data) {
 			console.log(data)
@@ -51,7 +53,6 @@ class RenderMapC extends React.Component {
 		})
 		
 	}
-	
 	
 	
 	LeftClick(x, y){
@@ -65,7 +66,8 @@ class RenderMapC extends React.Component {
 			})
 		
 	}
-
+	
+	
 	RightClick(x, y){
 		$.ajax({
 			url: "/rightClick?x="+x+"&y="+y,
@@ -136,7 +138,7 @@ class RenderMapC extends React.Component {
 	}else if(self.state.gameState == 3){
 		output = <div><br /><img src="/static/solo/Win.svg"/></div>
 	}
-		return <div>{resetButton}{undoButton}<br /><tables>{output}</tables></div>
+		return <div>{resetButton}{undoButton}<br /><tables className="centerDiv">{output}</tables></div>
 	}
 	
 }
@@ -144,7 +146,7 @@ class RenderMapC extends React.Component {
 
 ReactDOM.render(
 	<div>
-	<RenderMapC />
+	<RenderMap />
 	</div>,
 	document.getElementById('root')
 );
