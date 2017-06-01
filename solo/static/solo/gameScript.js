@@ -145,11 +145,11 @@ class RenderMap extends React.Component {
 				if(this.state.mapArray[cnt1][cnt2] == null){
 					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButton" onClick = {() => this.LeftClick(outX,outY)} onContextMenu = {(event) => {event.preventDefault(); this.RightClick(outX,outY)}}>0</button></td>);
 				}else if(this.state.mapArray[cnt1][cnt2] == -1)
-					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButtonFlag" onContextMenu = {(event) => {event.preventDefault(); this.RightClick(outX,outY)}}> F </button></td>);
+					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButtonFlag" onContextMenu = {(event) => {event.preventDefault(); this.RightClick(outX,outY)}}> ⚑ </button></td>);
 				else if(this.state.mapArray[cnt1][cnt2] == 0)
 					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButton0" disabled> {this.state.mapArray[cnt1][cnt2]} </button></td>);
 				else if(this.state.mapArray[cnt1][cnt2] == 9)
-					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButtonMine" disabled> M </button></td>);
+					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className="tileButtonMine" disabled> ✦ </button></td>);
 				else
 					output[cnt1].push(<td key = {cnt1+","+cnt2}><button className={"tileButton"+ this.state.mapArray[cnt1][cnt2]} disabled> {this.state.mapArray[cnt1][cnt2]} </button></td>);
 			}
@@ -159,7 +159,7 @@ class RenderMap extends React.Component {
 		output = <div><img src="/static/solo/Logo.svg"/><br /><tables className="centerDiv">{output}</tables><br />{resetButton}{undoButton}<h3>SCORE:{this.state.score}</h3>{LeaderBoard}</div>;
 		
 	}else if(self.state.gameState == 2){
-		output = <div><br /><img src="/static/solo/Lose.svg"/><br />{resetButton}<h3>SCORE:{this.state.score}</h3></div>;
+		output = <div><br /><img src="/static/solo/Lose.svg"/><br />{resetButton}</div>;
 	}else if(self.state.gameState == 3){
 		output = <div><br /><img src="/static/solo/Win.svg"/><br />{resetButton}<h3>SCORE:{this.state.score}</h3>{addScore}</div>;
 	}
