@@ -51,7 +51,6 @@
 	cursor: crosshair;
 }
 
-
 .tileButton2:disabled{
 	width: 42px;
 	height: 42px;
@@ -169,7 +168,6 @@
 	border: 4px outset white;
 	color: white;
 	font-weight: bold;
-	width: 350px;
 }
 
 .centerDiv{

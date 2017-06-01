@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse, JsonResponse
-from solo.models import Game
+from solo.models import Game, LeaderBoard
 import time
 from random import randint
 import math
@@ -30,8 +30,17 @@ def index(request):
 
 def loadGame(request):
 	
+	if(request.method == "GET"):
+		name = request.GET.get('name', None)
+		score = request.GET.get('score', None)
+		
+		if(name != None):
+			l = LeaderBoard(Name=name, Score=score)
+			l.save()
+	
+	if( gameState != 0 ):
+		return redirect('index')
 
-				
 	return render(request, 'solo/game.html')
 	
 def startGame(request):
@@ -64,31 +73,27 @@ def startGame(request):
 		for cnt2 in range(mapSizeX):
 			mapArray[cnt1].append(None)
 			underArray[cnt1].append(0)
-	
-	
 
+	
 	return redirect('/loadGame/')
 	
 def getSize(request):
-	return JsonResponse([mapSizeX,mapSizeY], safe=False)
+	board = []
+	
+	for i in LeaderBoard.objects.all().order_by("-Score"):
+		board.append([i.Name,i.Score])
+	
 
+	return JsonResponse([mapSizeX,mapSizeY,board], safe=False)
+	
 def getMap(request):
 	return JsonResponse(mapArray, safe=False)
 	
 def getGameState(request):
-	return JsonResponse(gameState, safe=False)
-	
-def getScore(request):
 
-	score = 10
+	score =  1000000 - (len(mapList) * math.floor(1000000/(mapSizeX * mapSizeY)))
 
-	return JsonResponse(score, safe=False)
-	
-def getLeaderBoard(request):
-
-	board = None
-	
-	return JsonResponse(board, safe=False)
+	return JsonResponse([gameState,score], safe=False)
 
 def leftClick(request):
 
@@ -143,7 +148,7 @@ def undo(request):
 	global mapArray
 	global gameState
 	
-	if len(mapList) != 0 :
+	if len(mapList) != 0 and gameState == 0:
 		mapArray = mapList.pop()
 		gameState = 0 
 	

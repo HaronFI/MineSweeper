@@ -11,7 +11,8 @@ class RenderMap extends React.Component {
 			mapSizeY: 16,
 			mapSizeX: 16,
 			gameState: 0,
-			gameID: 1,
+			score: 0,
+			board: null,
 		};
 		
 		this.UpdateMap = this.UpdateMap.bind(this);
@@ -32,6 +33,7 @@ class RenderMap extends React.Component {
 			console.log(data)
 			self.setState({mapSizeX : data[0]})
 			self.setState({mapSizeY : data[1]})
+			self.setState({board: data[2]})
 			
 			self.UpdateMap()
 			
@@ -54,6 +56,8 @@ class RenderMap extends React.Component {
 		
 	}
 	
+	
+
 	
 	LeftClick(x, y){
 		$.ajax({
@@ -95,7 +99,8 @@ class RenderMap extends React.Component {
 			url: "/getGameState"
 		}).done(function(data) {
 				console.log(data)
-				self.setState({gameState: data})
+				self.setState({gameState: data[0]})
+				self.setState({score: data[1]})
 			})
 	}
 	
@@ -104,10 +109,27 @@ class RenderMap extends React.Component {
 	}
 	
 	render(){
+		
+		
+	var LeaderBoard = []
 	
+	if(this.state.board){
+		LeaderBoard.push(<h1>LEADER BOARD</h1>)
+		
+		for(var cnt = 0; cnt < this.state.board.length; cnt++){
+			LeaderBoard.push(<h1>{cnt+1 + ". " + this.state.board[cnt][0] + " : " + this.state.board[cnt][1]}</h1>)
+		}
+		
+	}
 	
-	const undoButton = (<button className="menuStyle" onClick = {this.Undo}>UNDO</button>);
-	const resetButton = (<button className="menuStyle" onClick = {this.resetGame}>RESET</button>);
+	const undoButton = (<button onClick = {this.Undo}>UNDO</button>);
+	const resetButton = (<button  onClick = {this.resetGame}>RESET</button>);
+	const addScore = (	<form>
+							Your Name: <input  id="name" type="text" name="name" /><br />
+							<input type="hidden" id="score" name="score" value = {this.state.score} />
+							<input type="submit" value="Submit" />
+						</form>
+	);
 		
 	if (!this.state.mapArray || !this.state.mapArray[0]) {
 		return <div>Loading</div>;
@@ -133,12 +155,15 @@ class RenderMap extends React.Component {
 			}
 			output[cnt1] = <tr key = {cnt1} className="mapGrid">{output[cnt1]}</tr>;
 		}
+		
+		output = <div><img src="/static/solo/Logo.svg"/><br /><tables className="centerDiv">{output}</tables><br />{resetButton}{undoButton}<h3>SCORE:{this.state.score}</h3>{LeaderBoard}</div>;
+		
 	}else if(self.state.gameState == 2){
-		output = <div><br /><img src="/static/solo/Lose.svg"/></div>
+		output = <div><br /><img src="/static/solo/Lose.svg"/><br />{resetButton}<h3>SCORE:{this.state.score}</h3></div>;
 	}else if(self.state.gameState == 3){
-		output = <div><br /><img src="/static/solo/Win.svg"/></div>
+		output = <div><br /><img src="/static/solo/Win.svg"/><br />{resetButton}<h3>SCORE:{this.state.score}</h3>{addScore}</div>;
 	}
-		return <div>{resetButton}{undoButton}<br /><tables className="centerDiv">{output}</tables></div>
+	return <div>{output}</div>
 	}
 	
 }

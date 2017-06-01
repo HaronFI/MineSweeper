@@ -8,7 +8,6 @@ urlpatterns = [
 	url(r'^loadGame/$', views.loadGame, name = 'loadGame'),
 	url(r'^getSize$', views.getSize, name = 'getSize'),
 	url(r'^getMap$', views.getMap, name = 'getMap'),
-	url(r'^getScore$', views.getScore, name = 'getScore'),
 	url(r'^leftClick$', views.leftClick, name = 'leftClick'),
 	url(r'^rightClick$', views.rightClick, name = 'rightClick'),
 	url(r'^undo$', views.undo, name = 'undo'),
