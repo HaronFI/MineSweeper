@@ -25,7 +25,7 @@ SECRET_KEY = '&t#-eli161rc&#v+5gmj4k4_+n(9@_a45_deohk*tr_4n*%@8i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['haronfi.pythonanywhere.com']
 
 
 # Application definition
