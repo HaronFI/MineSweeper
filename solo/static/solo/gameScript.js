@@ -1,4 +1,5 @@
 
+const socket = new WebSocket("ws://" + window.location.host);
 
 //Render Map class
 class RenderMap extends React.Component {
@@ -13,6 +14,7 @@ class RenderMap extends React.Component {
 			gameState: 0,
 			score: 0,
 			board: null,
+			gameID: window.location.pathname.split('/')[2]
 		};
 		
 		this.UpdateMap = this.UpdateMap.bind(this);
@@ -26,15 +28,18 @@ class RenderMap extends React.Component {
 	componentDidMount(){
 		self = this;
 		
+		socket.onmessage = function(e) {
+			self.UpdateMap()
+		}
+		
 		$.ajax({
-			url: "/getSize",
+			url: "/getSize?gameID="+this.state.gameID,
 			context: document.body	
 		}).done(function(data) {
 			console.log(data)
 			self.setState({mapSizeX : data[0]})
 			self.setState({mapSizeY : data[1]})
 			self.setState({board: data[2]})
-			
 			self.UpdateMap()
 			
 		});
@@ -46,7 +51,7 @@ class RenderMap extends React.Component {
 
 	UpdateMap(){
 		$.ajax({
-			url: "/getMap",
+			url: "/getMap?gameID="+this.state.gameID,
 			context: document.body	
 		}).done(function(data) {
 			console.log(data)
@@ -60,8 +65,10 @@ class RenderMap extends React.Component {
 
 	
 	LeftClick(x, y){
+		
+		socket.send("Yo")
 		$.ajax({
-			url: "/leftClick?x="+x+"&y="+y,
+			url: "/leftClick?gameID="+this.state.gameID+"&x="+x+"&y="+y,
 			type: 'get'
 		}).done(function(data) {
 				console.log(data)
@@ -73,8 +80,9 @@ class RenderMap extends React.Component {
 	
 	
 	RightClick(x, y){
+		socket.send("Yo")
 		$.ajax({
-			url: "/rightClick?x="+x+"&y="+y,
+			url: "/rightClick?gameID="+this.state.gameID+"&x="+x+"&y="+y,
 			type: 'get'
 		}).done(function(data) {
 				console.log(data)
@@ -85,8 +93,10 @@ class RenderMap extends React.Component {
 	}
 
 	Undo(){
+		socket.send("Yo")
+		
 		$.ajax({
-			url: "/undo"
+			url: "/undo?gameID="+this.state.gameID
 		}).done(function(data) {
 				console.log(data)
 				self.setState({mapArray: data})
@@ -95,8 +105,9 @@ class RenderMap extends React.Component {
 	}
 	
 	getGameState(){
+		
 		$.ajax({
-			url: "/getGameState"
+			url: "/getGameState?gameID="+this.state.gameID
 		}).done(function(data) {
 				console.log(data)
 				self.setState({gameState: data[0]})

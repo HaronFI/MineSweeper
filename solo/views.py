@@ -4,9 +4,8 @@ from solo.models import Game, LeaderBoard
 import time
 from random import randint
 import math
-import json
-
-newGame = False
+from json import dumps, loads
+from channels import Group
 
 mapSizeX = 16
 mapSizeY = 16
@@ -20,15 +19,15 @@ flags = None
 
 
 gameState =0
-#0 - Playing
-#3 - Win
-#2 - Lose
-
 
 def index(request):
 	return render(request, 'solo/index.html')
 
-def loadGame(request):
+def loadGame(request, gameID = "1"):
+	
+	g = Game.objects.get(pk=gameID)
+	
+	gameState = g.GameState
 	
 	if(request.method == "GET"):
 		name = request.GET.get('name', None)
@@ -44,16 +43,6 @@ def loadGame(request):
 	return render(request, 'solo/game.html')
 	
 def startGame(request):
-
-	global mapArray
-	global mapSizeX
-	global mapSizeY
-	global underArray
-	global mines
-	global flags
-	global gameState
-	global currentGame
-	global mapList
 	
 	mines = None
 	flags = []
@@ -74,32 +63,68 @@ def startGame(request):
 			mapArray[cnt1].append(None)
 			underArray[cnt1].append(0)
 
+	g = Game(	MapSizeX = mapSizeX,
+				MapSizeY = mapSizeY,
+				MapArray = dumps(mapArray),
+				UnderArray = dumps(underArray),
+				GameState = gameState,
+				Mines = dumps(mines),
+				Flags = dumps(flags),
+				MapList = dumps(mapList)
+			)
 	
-	return redirect('/loadGame/')
+	g.save()
+	
+	return redirect('/loadGame/'+str(g.pk))
 	
 def getSize(request):
+	
+	g = Game.objects.get(pk=request.GET['gameID'])
+
 	board = []
 	
 	for i in LeaderBoard.objects.all().order_by("-Score"):
 		board.append([i.Name,i.Score])
 	
 
-	return JsonResponse([mapSizeX,mapSizeY,board], safe=False)
+	return JsonResponse([g.MapSizeX,g.MapSizeY,board], safe=False)
 	
 def getMap(request):
-	return JsonResponse(mapArray, safe=False)
+	g = Game.objects.get(pk=request.GET['gameID'])
+
+	return JsonResponse(loads(g.MapArray), safe=False)
 	
 def getGameState(request):
 
-	score =  1000000 - (len(mapList) * math.floor(1000000/(mapSizeX * mapSizeY)))
+	g = Game.objects.get(pk=request.GET['gameID'])
 
-	return JsonResponse([gameState,score], safe=False)
+	score =  1000000 - (len(loads(g.MapList)) * math.floor(1000000/(g.MapSizeX * g.MapSizeY)))
+
+	return JsonResponse([g.GameState,score], safe=False)
 
 def leftClick(request):
 
 	global mapArray
+	global underArray
 	global mapList
 	global gameState
+	global mapSizeX
+	global mapSizeY
+	global mines
+	global flags
+	
+	g = Game.objects.get(pk=request.GET['gameID'])
+	
+	mapArray = loads(g.MapArray)
+	underArray = loads(g.UnderArray)
+	mapList = loads(g.MapList)
+	mines = loads(g.Mines)
+	flags = loads(g.Flags)
+	gameState = g.GameState
+	mapSizeX = g.MapSizeX
+	mapSizeY = g.MapSizeY
+	mapList = loads(g.MapList)
+	
 	
 	if(request.method == "GET"):
 		x = int(request.GET["x"])
@@ -118,11 +143,38 @@ def leftClick(request):
 			clearTiles(y, x)
 			winCheck()
 
+	g.MapArray = dumps(mapArray)
+	g.UnderArray = dumps(underArray)
+	g.MapList = dumps(mapList)
+	g.Mines = dumps(mines)
+	g.Flags = dumps(flags)
+	g.GameState = gameState
+	g.mapList = dumps(mapList)
+	
+	g.save()
+			
 	return JsonResponse(mapArray, safe=False)
 
 def rightClick(request):
-	global flags
+	global mapArray
+	global underArray
 	global mapList
+	global gameState
+	global mapSizeX
+	global mapSizeY
+	global mines
+	global flags
+	
+	g = Game.objects.get(pk=request.GET['gameID'])
+	
+	mapArray = loads(g.MapArray)
+	underArray = loads(g.UnderArray)
+	mapList = loads(g.MapList)
+	mines = loads(g.Mines)
+	gameState = g.GameState
+	mapSizeX = g.MapSizeX
+	mapSizeY = g.MapSizeY
+	mapList = loads(g.MapList)
 	
 	if(mines != None):
 		if(request.method == "GET"):
@@ -140,18 +192,51 @@ def rightClick(request):
 					if f[0] == y and f[1] == x:
 						f[0] = -100
 						f[1] = -100
-
+		
+		g.MapArray = dumps(mapArray)
+		g.UnderArray = dumps(underArray)
+		g.MapList = dumps(mapList)
+		g.Mines = dumps(mines)
+		g.Flags = dumps(flags)
+		g.GameState = gameState
+		g.mapList = dumps(mapList)
+	
+		g.save()
 	return JsonResponse(mapArray, safe=False)
 
 def undo(request):
 
 	global mapArray
+	global underArray
+	global mapList
 	global gameState
+	global mapSizeX
+	global mapSizeY
+	
+	g = Game.objects.get(pk=request.GET['gameID'])
+	
+	mapArray = loads(g.MapArray)
+	underArray = loads(g.UnderArray)
+	mapList = loads(g.MapList)
+	mines = loads(g.Mines)
+	gameState = g.GameState
+	mapSizeX = g.MapSizeX
+	mapSizeY = g.MapSizeY
+	mapList = loads(g.MapList)
 	
 	if len(mapList) != 0 and gameState == 0:
 		mapArray = mapList.pop()
 		gameState = 0 
 	
+		g.MapArray = dumps(mapArray)
+		g.UnderArray = dumps(underArray)
+		g.MapList = dumps(mapList)
+		g.Mines = dumps(mines)
+		g.Flags = dumps(flags)
+		g.GameState = gameState
+		g.mapList = dumps(mapList)
+	
+		g.save()
 	return JsonResponse(mapArray, safe=False)
 	
 def createMines(y, x):
@@ -243,6 +328,19 @@ def updateMapList():
 	pass
 
 
+def ws_add(message):
+    message.reply_channel.send({"accept": True})
+    Group("game").add(message.reply_channel)
+
+
+def ws_message(message):
+	print("message check")
+	Group("game").send({
+	"text": "[user] %s" % message.content['text'],
+    })
+
+def ws_disconnect(message):
+    Group("game").discard(message.reply_channel)
 
 
 

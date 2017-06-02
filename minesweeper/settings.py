@@ -25,7 +25,7 @@ SECRET_KEY = '&t#-eli161rc&#v+5gmj4k4_+n(9@_a45_deohk*tr_4n*%@8i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['haronfi.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'channels',
 ]
 
 MIDDLEWARE = [
@@ -104,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "asgiref.inmemory.ChannelLayer",
-        "ROUTING": "myproject.routing.channel_routing",
+        "ROUTING": "solo.routing.channel_routing",
     },
 }
 
